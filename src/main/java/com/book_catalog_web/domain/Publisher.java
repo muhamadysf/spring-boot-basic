@@ -17,4 +17,5 @@ public class Publisher {
 
     @Column(name = "description")
     private String description;
+
 }

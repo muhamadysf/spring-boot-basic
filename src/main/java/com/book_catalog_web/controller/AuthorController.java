@@ -1,26 +1,24 @@
 package com.book_catalog_web.controller;
 
-import com.book_catalog_web.dto.AuthorCreateRequestDTO;
-import com.book_catalog_web.dto.AuthorResponseDTO;
+import com.book_catalog_web.dto.request.AuthorRequestDTO;
+import com.book_catalog_web.dto.response.AuthorSearchResponseDTO;
+import com.book_catalog_web.dto.response.AuthorResponseDTO;
 import com.book_catalog_web.service.AuthorService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @Slf4j
-@Controller
+@RestController
 @RequiredArgsConstructor
-@RequestMapping("author")
+@RequestMapping("/v1/authors")
 public class AuthorController {
 
+    /*
     private final AuthorService authorService;
 
     @GetMapping("new")
@@ -48,6 +46,39 @@ public class AuthorController {
     @GetMapping("create-result")
     public String displayCreateResult(Model model){
         return "author/author-create-result";
+    }
+    */
+
+    private final AuthorService authorService;
+
+    @PostMapping
+    public ResponseEntity<Void> createNewAuthor(@RequestBody AuthorRequestDTO dto){
+        authorService.createNewAuthor(dto);
+        return ResponseEntity.created(URI.create("/v1/authors")).build();
+    }
+
+    @GetMapping("{authorId}")
+    public ResponseEntity<AuthorResponseDTO> findAuthorDetail(@PathVariable Long authorId){
+        AuthorResponseDTO author = authorService.findAuthorDetail(authorId);
+        return ResponseEntity.ok(author);
+    }
+
+    @GetMapping()
+    public ResponseEntity<List<AuthorSearchResponseDTO>> searchAuthor(@RequestParam(required = false) String name){
+        List<AuthorSearchResponseDTO> dto = authorService.searchAuthor(name);
+        return ResponseEntity.ok(dto);
+    }
+
+    @PutMapping("{authorId}")
+    public ResponseEntity<Void> updateAuthor(@PathVariable Long authorId, @RequestBody AuthorRequestDTO dto){
+        authorService.updateAuthor(authorId, dto);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("{authorId}")
+    public ResponseEntity<Void> deleteAuthor(@PathVariable Long authorId){
+        authorService.deleteAuthor(authorId);
+        return ResponseEntity.noContent().build();
     }
 
 }
