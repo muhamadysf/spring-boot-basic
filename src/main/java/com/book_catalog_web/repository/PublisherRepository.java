@@ -1,6 +1,8 @@
 package com.book_catalog_web.repository;
 
 import com.book_catalog_web.domain.Publisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -31,5 +33,8 @@ public interface PublisherRepository extends JpaRepository<Publisher, Long> {
     @Modifying
     @Query(value = "UPDATE Publisher p SET p.description=:description WHERE p.id=:id")
     public void updatePublisherDescription(String description, Long id);
+
+    // SELECT * FROM publisher WHERE UPPER(name) LIKE UPPER(:publisherName)
+    public Page<Publisher> findByNameLikeIgnoreCase(String publisherName, Pageable pageable);
 
 }

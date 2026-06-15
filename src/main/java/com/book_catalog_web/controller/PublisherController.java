@@ -1,10 +1,11 @@
 package com.book_catalog_web.controller;
 
 import com.book_catalog_web.dto.*;
+import com.book_catalog_web.dto.response.PublisherListResponseDTO;
+import com.book_catalog_web.dto.response.ResultPageResponseDTO;
 import com.book_catalog_web.service.PublisherService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -19,7 +20,7 @@ public class PublisherController {
 
     //@GetMapping
     //@ResponseBody  --> annotasi yang memberitahu servelt kalau return-nya bukan nama view, malainkan body response JSON/XML
-    public ResponseEntity<PublisherListRecordDTO> hello(){
+    public ResponseEntity<PublisherListResponseDTO> hello(){
         // cara 1. menggunakan DTO dengan class (traditional/POJO)
         // PublisherListResponseDTO dto = new PublisherListResponseDTO();
         // dto.setId(1L);
@@ -27,8 +28,9 @@ public class PublisherController {
         // return dto;
     // ------------------------------------------------------------------
         // cara 2. menggunakan DTO dengan record (java 14)
-        return ResponseEntity.ok(new PublisherListRecordDTO(1L, "Zervash"));
+        return ResponseEntity.ok(new PublisherListResponseDTO(1L, "Zervash"));
     }
+// ====================================================================================================================
 
     @GetMapping("{id}")
     public ResponseEntity<PublisherDetailResponseDTO> findPublisherDetail(@PathVariable Long id){
@@ -48,10 +50,23 @@ public class PublisherController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping
+    public ResponseEntity<ResultPageResponseDTO<PublisherListResponseDTO>> findPublisherList(
+            @RequestParam(defaultValue = "0") Integer pages,
+            @RequestParam(defaultValue = "10") Integer limit,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction,
+            @RequestParam(required = false) String publisherName
+    ){
+        return ResponseEntity.ok(publisherService.findAllPublisher(pages, limit, sortBy, direction, publisherName));
+    }
+
     @DeleteMapping("{id}")
     public ResponseEntity<Void> deletePublisher(@PathVariable Long id){
         publisherService.deletePublisher(id);
         return ResponseEntity.noContent().build();
     }
+
+
 
 }
