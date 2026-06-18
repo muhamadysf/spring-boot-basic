@@ -18,4 +18,6 @@ public class Publisher {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "is_deleted", columnDefinition = "boolean default false not null")
+    private Boolean isDeleted;
 }

@@ -37,4 +37,8 @@ public interface PublisherRepository extends JpaRepository<Publisher, Long> {
     // SELECT * FROM publisher WHERE UPPER(name) LIKE UPPER(:publisherName)
     public Page<Publisher> findByNameLikeIgnoreCase(String publisherName, Pageable pageable);
 
+    // soft delete
+    @Modifying
+    @Query("UPDATE Publisher p SET p.isDeleted = true WHERE p.id = :id")
+    public void softDelete(Long id);
 }

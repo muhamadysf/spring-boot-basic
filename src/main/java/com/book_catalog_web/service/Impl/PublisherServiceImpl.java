@@ -55,19 +55,23 @@ public class    PublisherServiceImpl implements PublisherService {
 
     @Override
     public void deletePublisher(Long id) {
-        publisherRepository.deleteById(id);
+//        publisherRepository.deleteById(id);
+
+        // soft delete
+        publisherRepository.softDelete(id);
     }
 
     @Override
     public ResultPageResponseDTO<PublisherListResponseDTO> findAllPublisher(Integer pages, Integer limit, String sortBy, String direction, String publisherName) {
-        publisherName = StringUtils.isBlank(publisherName) ? "%" : "%" + publisherName + "%";
+
         Sort sort = Sort.by(new Sort.Order(Sort.Direction.valueOf(direction.toUpperCase()), sortBy));
         Pageable pageable = PageRequest.of(pages, limit, sort);
 
+        publisherName = StringUtils.isBlank(publisherName) ? "%" : "%" + publisherName + "%";
+
         Page<Publisher> publisherPage = publisherRepository.findByNameLikeIgnoreCase(publisherName, pageable);
-        List<PublisherListResponseDTO> dtos = publisherPage.stream().map(p -> {
-            return new PublisherListResponseDTO(p.getId(), p.getName());
-        }).toList();
+
+        List<PublisherListResponseDTO> dtos = publisherPage.stream().map(p -> new PublisherListResponseDTO(p.getId(), p.getName())).toList();
 
         return new ResultPageResponseDTO<>(dtos, publisherPage.getTotalPages(), publisherPage.getTotalElements());
     }
