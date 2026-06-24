@@ -1,18 +1,17 @@
 package com.book_catalog_web.domain;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "author")
-@Data
-public class Author {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+@Getter @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Author extends BaseEntity{
+    
     @Column(nullable = false)
     private String name;
 

@@ -4,14 +4,17 @@ import com.book_catalog_web.dto.request.AuthorRequestDTO;
 import com.book_catalog_web.dto.response.AuthorSearchResponseDTO;
 import com.book_catalog_web.dto.response.AuthorResponseDTO;
 import com.book_catalog_web.service.AuthorService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
 
+@Validated
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -52,7 +55,7 @@ public class AuthorController {
     private final AuthorService authorService;
 
     @PostMapping
-    public ResponseEntity<Void> createNewAuthor(@RequestBody AuthorRequestDTO dto){
+    public ResponseEntity<Void> createNewAuthor(@Valid @RequestBody AuthorRequestDTO dto){
         authorService.createNewAuthor(dto);
         return ResponseEntity.created(URI.create("/v1/authors")).build();
     }

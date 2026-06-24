@@ -8,29 +8,15 @@ import java.util.UUID;
 @Entity
 @Table(name = "app_user")
 @Data
-public class AppUser {
-    /** data
-     * long id
-     * UUID secureId
-     * String name
-     * String email
-     * String mobileNumber
-     * Boolean isDeleted
-     * */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class AppUser extends BaseUUIDEntity{
 
-    @Column(name = "secure_id", nullable = false, unique = true)
-    private UUID secureId;
-
-
+    @Column(name = "name", nullable = false)
     private String name;
 
+    @Column(name = "email", nullable = false)
     private String email;
 
+    @Column(name = "mobile_number", nullable = false)
     private String mobileNumber;
-
-    private Boolean isDeleted;
 
 }
