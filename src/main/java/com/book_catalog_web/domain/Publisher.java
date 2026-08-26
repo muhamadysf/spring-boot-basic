@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
 
+
+
 @Entity
 @Table(name = "publisher")
 @SQLRestriction("is_deleted = false")
