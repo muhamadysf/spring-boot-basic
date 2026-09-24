@@ -5,9 +5,11 @@ import com.book_catalog_web.dto.response.ResultPageResponseDTO;
 import com.book_catalog_web.dto.response.UserListResponseDTO;
 import com.book_catalog_web.dto.response.UserResponseDTO;
 
+import java.util.UUID;
+
 public interface UserService {
     public void createUser(UserRequestDTO dto);
-    public UserResponseDTO findUserDetail(Long id);
+    public UserResponseDTO findUserDetail(UUID id);
     public ResultPageResponseDTO<UserListResponseDTO> findAllUser(
             Integer pages,
             Integer limit,
@@ -17,6 +19,6 @@ public interface UserService {
             String email,
             String mobileNumber
     );
-    public void updateUser(Long id, UserRequestDTO dto);
+    public void updateUser(UUID id, UserRequestDTO dto);
     public void deleteUser(Long id);
 }

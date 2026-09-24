@@ -7,12 +7,18 @@ import com.book_catalog_web.dto.response.UserListResponseDTO;
 import com.book_catalog_web.dto.response.UserResponseDTO;
 import com.book_catalog_web.repository.AppUserRepository;
 import com.book_catalog_web.service.UserService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,11 +38,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDTO findUserDetail(Long id) {
-
+    public UserResponseDTO findUserDetail(UUID id) {
+        /*
         AppUser user = appUserRepository.findById(id).orElseThrow(() -> new RuntimeException("User id not found"));
 
         return new UserResponseDTO(user.getId(), user.getSecureId(), user.getName(), user.getEmail(), user.getMobileNumber());
+
+         */
+
+         AppUser user = appUserRepository.findAppUserBySecureId(id).orElseThrow(() -> new RuntimeException("User ID not found"));
+         return new UserResponseDTO(user.getId(), user.getSecureId(), user.getName(), user.getEmail(), user.getMobileNumber());
     }
 
     @Override
@@ -46,14 +57,16 @@ public class UserServiceImpl implements UserService {
 
         userName = StringUtils.isBlank(userName) ? "%" : "%" + userName + "%";
 
+        Page<AppUser> resultPage = appUserRepository.findAppUsersByNameLikeIgnoreCase(userName, pageable);
+        List<UserListResponseDTO> resultDTO = resultPage.stream().map((a) -> new UserListResponseDTO(a.getSecureId(), a.getName())).toList();
 
-
-        return null;
+        return new ResultPageResponseDTO<>(resultDTO, resultPage.getTotalPages(), resultPage.getTotalElements());
     }
 
+    @Transactional
     @Override
-    public void updateUser(Long id, UserRequestDTO dto) {
-        AppUser user = appUserRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+    public void updateUser(UUID id, UserRequestDTO dto) {
+        AppUser user = appUserRepository.findAppUserBySecureId(id).orElseThrow(() -> new RuntimeException("User not found"));
 
         user.setName(dto.name());
         user.setEmail(dto.name());
