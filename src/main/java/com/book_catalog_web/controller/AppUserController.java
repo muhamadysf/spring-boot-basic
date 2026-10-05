@@ -5,6 +5,7 @@ import com.book_catalog_web.dto.request.UserRequestDTO;
 import com.book_catalog_web.dto.response.ResultPageResponseDTO;
 import com.book_catalog_web.dto.response.UserListResponseDTO;
 import com.book_catalog_web.dto.response.UserResponseDTO;
+import com.book_catalog_web.repository.AppUserRepository;
 import com.book_catalog_web.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import java.util.UUID;
 public class AppUserController {
 
     private final UserService userService;
+    private final AppUserRepository appUserRepository;
 
     @PostMapping
     public ResponseEntity<Void> createdAppUser(@RequestBody @Valid UserRequestDTO dto) {
@@ -46,9 +48,15 @@ public class AppUserController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Void> updateUser(@PathVariable UUID id, @RequestBody UserRequestDTO dto) {
+    public ResponseEntity<Void> updateUser(@PathVariable UUID id, @RequestBody @Valid UserRequestDTO dto) {
+        userService.updateUser(id, dto);
+        return ResponseEntity.ok().build();
+    }
 
-        return null;
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> deletedUser(@PathVariable UUID id) {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 
 }

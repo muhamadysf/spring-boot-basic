@@ -34,6 +34,8 @@ public class UserServiceImpl implements UserService {
         user.setEmail(dto.email());
         user.setMobileNumber(dto.mobileNumber());
 
+        System.out.println(dto.mobileNumber());
+
         appUserRepository.save(user);
     }
 
@@ -69,14 +71,21 @@ public class UserServiceImpl implements UserService {
         AppUser user = appUserRepository.findAppUserBySecureId(id).orElseThrow(() -> new RuntimeException("User not found"));
 
         user.setName(dto.name());
-        user.setEmail(dto.name());
+        user.setEmail(dto.email());
         user.setMobileNumber(dto.mobileNumber());
 
         appUserRepository.save(user);
     }
 
+    @Transactional
     @Override
-    public void deleteUser(Long id) {
-        appUserRepository.softDelete(id);
+    public void deleteUser(UUID id) {
+        AppUser user = appUserRepository.findAppUserBySecureId(id).orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setIsDeleted(true);
+        appUserRepository.save(user);
+        //appUserRepository.softDelete(id);
     }
+
+
 }

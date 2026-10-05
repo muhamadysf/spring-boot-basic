@@ -20,5 +20,5 @@ public interface UserService {
             String mobileNumber
     );
     public void updateUser(UUID id, UserRequestDTO dto);
-    public void deleteUser(Long id);
+    public void deleteUser(UUID id);
 }
