@@ -4,6 +4,7 @@ import com.book_catalog_web.domain.Author;
 import com.book_catalog_web.dto.request.AuthorRequestDTO;
 import com.book_catalog_web.dto.response.AuthorSearchResponseDTO;
 import com.book_catalog_web.dto.response.AuthorResponseDTO;
+import com.book_catalog_web.exception.ResourceNotFoundException;
 import com.book_catalog_web.repository.AuthorRepository;
 import com.book_catalog_web.service.AuthorService;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -82,6 +84,15 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public void deleteAuthor(Long id) {
         authorRepository.deleteById(id);
+    }
+
+    @Override
+    public Set<Author> findAllAuthors(List<Long> authorId) {
+        Set<Author> authors = authorRepository.findAllByIdIn(authorId);
+        if (authors.isEmpty()||(authors.size() != authorId.size())) {
+            throw new ResourceNotFoundException("authors not found");
+        }
+        return authors;
     }
 /*
     private List<Author> authorList;

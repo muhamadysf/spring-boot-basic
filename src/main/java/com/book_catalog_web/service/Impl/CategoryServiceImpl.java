@@ -6,8 +6,10 @@ import com.book_catalog_web.dto.request.CategoryUpdateRequestDTO;
 import com.book_catalog_web.dto.response.CategoryListResponseDTO;
 import com.book_catalog_web.dto.response.CategoryResponseDTO;
 import com.book_catalog_web.dto.response.ResultPageResponseDTO;
+import com.book_catalog_web.exception.ResourceNotFoundException;
 import com.book_catalog_web.repository.CategoryRepository;
 import com.book_catalog_web.service.CategoryService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
@@ -15,6 +17,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -35,30 +40,52 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryResponseDTO findCategoryDetail(String code) {
-        Category category = categoryRepository.findCategoryByCodeIgnoreCase(code).orElseThrow(() -> new RuntimeException("Category not found"));
+        Category category = categoryRepository.findCategoryByCodeIgnoreCase(code).orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
         return new CategoryResponseDTO(category.getCode(), category.getName(), category.getDescription());
     }
 
     @Override
-    public ResultPageResponseDTO<CategoryListResponseDTO> findAllCategory(Integer pages, Integer limit, String sortBy, String direction, String categoryName) {
+    public ResultPageResponseDTO<List<CategoryListResponseDTO>> findAllCategory(Integer pages, Integer limit, String sortBy, String direction, String categoryName) {
         Sort sort = Sort.by(new Sort.Order(Sort.Direction.valueOf(direction.toUpperCase()), sortBy));
         Pageable pageable = PageRequest.of(pages, limit, sort);
 
         categoryName = StringUtils.isBlank(categoryName) ? "%" : "%" + categoryName + "%";
 
-        Page<Category> resultPage = categoryRepository.
+        Page<Category> resultPage = categoryRepository.findAllByNameLikeIgnoreCase(categoryName, pageable);
 
-        return null;
+        List<CategoryListResponseDTO> resultDTO = resultPage.getContent().stream().map((c) -> new CategoryListResponseDTO(c.getCode(), c.getName())).toList();
+
+        return new ResultPageResponseDTO(resultDTO, resultPage.getTotalPages(), resultPage.getTotalElements());
     }
 
+    @Transactional
     @Override
-    public void updateCategory(CategoryUpdateRequestDTO dto) {
+    public void updateCategory(String code, CategoryUpdateRequestDTO dto) {
+        Category category = categoryRepository.findCategoryByCodeIgnoreCase(code).orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
+        category.setName(dto.name());
+        category.setDescription(dto.description());
+
+        categoryRepository.save(category);
     }
 
+    @Transactional
     @Override
     public void deleteCategory(String code) {
+        Category category = categoryRepository.findCategoryByCodeIgnoreCase(code).orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
+        category.setIsDeleted(true);
+        categoryRepository.save(category);
+    }
+
+    @Override
+    public Set<Category> findAllCategoies(List<String> code) {
+        Set<Category> categories = categoryRepository.findCategoriesByCodeInIgnoreCase(code);
+
+        if ((categories.size() != code.size()) || categories.isEmpty()) {
+            throw new ResourceNotFoundException("Categories not found");
+        }
+        return categories;
     }
 }

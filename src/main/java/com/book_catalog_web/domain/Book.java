@@ -5,6 +5,7 @@ import lombok.Data;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -19,19 +20,21 @@ public class Book extends BaseEntity{
     @Column(name = "title")
     private String title;
 
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "VARCHAR(5000)")
     private String description;
 
     @Column(name = "pages")
-    private String pages;
+    private Integer pages;
 
     @Column(name = "publisher_year")
     private Integer publisherYear;
 
-    @ManyToOne
+    // defaultnya fetch = EAGER (query dibuat join)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "publisher_id", nullable = false)
     private Publisher publisher;
 
+    // defaultnya fetch = Lazy (query dibuat hanya ketika data dibutuhkan)
     @ManyToMany
     @JoinTable(name = "book_category",
                 joinColumns = @JoinColumn(name = "book_id"),
@@ -48,6 +51,17 @@ public class Book extends BaseEntity{
         category.getBooks().remove(this);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Book book = (Book) o;
+        return Objects.equals(id, book.id) && Objects.equals(title, book.title) && Objects.equals(description, book.description) && Objects.equals(pages, book.pages) && Objects.equals(publisherYear, book.publisherYear);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, description, pages, publisherYear);
+    }
 
     @ManyToMany
     @JoinTable(name = "book_author",

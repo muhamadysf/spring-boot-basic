@@ -6,6 +6,7 @@ import com.book_catalog_web.dto.PublisherDetailResponseDTO;
 import com.book_catalog_web.dto.PublisherUpdateRequestDTO;
 import com.book_catalog_web.dto.response.PublisherListResponseDTO;
 import com.book_catalog_web.dto.response.ResultPageResponseDTO;
+import com.book_catalog_web.exception.ResourceNotFoundException;
 import com.book_catalog_web.repository.PublisherRepository;
 import com.book_catalog_web.service.PublisherService;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
-public class    PublisherServiceImpl implements PublisherService {
+public class PublisherServiceImpl implements PublisherService {
 
     private final PublisherRepository publisherRepository;
 
@@ -74,5 +75,10 @@ public class    PublisherServiceImpl implements PublisherService {
         List<PublisherListResponseDTO> dtos = publisherPage.stream().map(p -> new PublisherListResponseDTO(p.getId(), p.getName())).toList();
 
         return new ResultPageResponseDTO<>(dtos, publisherPage.getTotalPages(), publisherPage.getTotalElements());
+    }
+
+    @Override
+    public Publisher findPublisher(Long id) {
+        return publisherRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Publisher Not Found.!"));
     }
 }

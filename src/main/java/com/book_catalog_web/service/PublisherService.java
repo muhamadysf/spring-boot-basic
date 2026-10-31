@@ -1,5 +1,6 @@
 package com.book_catalog_web.service;
 
+import com.book_catalog_web.domain.Publisher;
 import com.book_catalog_web.dto.PublisherCreateRequestDTO;
 import com.book_catalog_web.dto.PublisherDetailResponseDTO;
 import com.book_catalog_web.dto.PublisherUpdateRequestDTO;
@@ -19,4 +20,6 @@ public interface PublisherService {
             String direction,
             String publisherName
     );
+
+    public Publisher findPublisher(Long id);
 }
