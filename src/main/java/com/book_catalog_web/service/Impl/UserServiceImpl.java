@@ -1,10 +1,12 @@
 package com.book_catalog_web.service.Impl;
 
 import com.book_catalog_web.domain.AppUser;
+import com.book_catalog_web.domain.Profile;
 import com.book_catalog_web.dto.request.UserRequestDTO;
 import com.book_catalog_web.dto.response.ResultPageResponseDTO;
 import com.book_catalog_web.dto.response.UserListResponseDTO;
 import com.book_catalog_web.dto.response.UserResponseDTO;
+import com.book_catalog_web.exception.ResourceNotFoundException;
 import com.book_catalog_web.repository.AppUserRepository;
 import com.book_catalog_web.service.UserService;
 import jakarta.transaction.Transactional;
@@ -14,6 +16,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,8 +38,13 @@ public class UserServiceImpl implements UserService {
         user.setEmail(dto.email());
         user.setMobileNumber(dto.mobileNumber());
 
-        System.out.println(dto.mobileNumber());
+        Profile profile = new Profile();
+        profile.setBirthDate(dto.profile().birthDate());
+        profile.setAddress(dto.profile().address());
+        profile.setZipCode(dto.profile().zipCode());
+        profile.setAppUser(user);
 
+        user.setProfile(profile);
         appUserRepository.save(user);
     }
 
@@ -69,10 +78,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUser(UUID id, UserRequestDTO dto) {
         AppUser user = appUserRepository.findAppUserBySecureId(id).orElseThrow(() -> new RuntimeException("User not found"));
+        Profile profile = user.getProfile();
 
         user.setName(dto.name());
         user.setEmail(dto.email());
         user.setMobileNumber(dto.mobileNumber());
+
+        profile.setBirthDate(dto.profile().birthDate());
+        profile.setAddress(dto.profile().address());
+        profile.setZipCode(dto.profile().zipCode());
+        profile.setAppUser(user);
+
+        user.setProfile(profile);
 
         appUserRepository.save(user);
     }
@@ -87,5 +104,16 @@ public class UserServiceImpl implements UserService {
         //appUserRepository.softDelete(id);
     }
 
+    @Override
+    public void hardDeletedUser(UUID id) {
+        AppUser user = appUserRepository.findAppUserBySecureId(id).orElseThrow(() -> new ResourceNotFoundException("user not found.!"));
 
+        appUserRepository.delete(user);
+    }
+
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return appUserRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("invalid username.!"));
+    }
 }

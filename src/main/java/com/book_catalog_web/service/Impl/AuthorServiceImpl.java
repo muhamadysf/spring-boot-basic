@@ -1,7 +1,9 @@
 package com.book_catalog_web.service.Impl;
 
 import com.book_catalog_web.domain.Author;
+import com.book_catalog_web.dto.query.AuthorQueryDTO;
 import com.book_catalog_web.dto.request.AuthorRequestDTO;
+import com.book_catalog_web.dto.response.AuthorListResponseDTO;
 import com.book_catalog_web.dto.response.AuthorSearchResponseDTO;
 import com.book_catalog_web.dto.response.AuthorResponseDTO;
 import com.book_catalog_web.exception.ResourceNotFoundException;
@@ -12,8 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -93,6 +94,26 @@ public class AuthorServiceImpl implements AuthorService {
             throw new ResourceNotFoundException("authors not found");
         }
         return authors;
+    }
+
+    @Override
+    public Map<Long, Set<AuthorListResponseDTO>> findAuthorsMap(Set<Long> bookIdSet) {
+        Map<Long, Set<AuthorListResponseDTO>> authorsMap = new HashMap<>();
+        Set<AuthorListResponseDTO> authorsDTO = null;
+
+        Set<AuthorQueryDTO> authorsQuery = authorRepository.findAuthorsByBookId(bookIdSet);
+        for (AuthorQueryDTO a : authorsQuery) {
+            if (!authorsMap.containsKey(a.bookId())) {
+                authorsDTO = new HashSet<>();
+            } else {
+                authorsDTO = authorsMap.get(a.bookId());
+            }
+
+            authorsDTO.add(new AuthorListResponseDTO(a.authorId(), a.authorName()));
+            authorsMap.put(a.bookId(), authorsDTO);
+        }
+
+        return authorsMap;
     }
 /*
     private List<Author> authorList;

@@ -9,6 +9,7 @@ import com.book_catalog_web.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -20,11 +21,13 @@ import java.util.List;
 public class CategoryController {
     private final CategoryService categoryService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<Void> createCategory(@RequestBody @Valid CategoryRequestDTO dto){
         categoryService.createCategory(dto);
         return ResponseEntity.created(URI.create("/v1/categories")).build();
     }
+
 
     @GetMapping
     public ResponseEntity<ResultPageResponseDTO<List<CategoryListResponseDTO>>> findCategoryList(
@@ -42,12 +45,14 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.findCategoryDetail(code));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("{code}")
     public ResponseEntity<Void> updateCategory(@PathVariable String code, @RequestBody @Valid CategoryUpdateRequestDTO dto){
         categoryService.updateCategory(code, dto);
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("{code}")
     public ResponseEntity<Void> deleteCategory(@PathVariable String code){
         categoryService.deleteCategory(code);

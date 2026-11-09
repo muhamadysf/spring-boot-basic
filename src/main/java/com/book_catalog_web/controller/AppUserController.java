@@ -55,7 +55,7 @@ public class AppUserController {
 
     @DeleteMapping("{id}")
     public ResponseEntity<Void> deletedUser(@PathVariable UUID id) {
-        userService.deleteUser(id);
+        userService.hardDeletedUser(id);
         return ResponseEntity.noContent().build();
     }
 

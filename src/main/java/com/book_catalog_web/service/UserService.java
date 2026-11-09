@@ -4,10 +4,11 @@ import com.book_catalog_web.dto.request.UserRequestDTO;
 import com.book_catalog_web.dto.response.ResultPageResponseDTO;
 import com.book_catalog_web.dto.response.UserListResponseDTO;
 import com.book_catalog_web.dto.response.UserResponseDTO;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.UUID;
 
-public interface UserService {
+public interface UserService extends UserDetailsService {
     public void createUser(UserRequestDTO dto);
     public UserResponseDTO findUserDetail(UUID id);
     public ResultPageResponseDTO<UserListResponseDTO> findAllUser(
@@ -21,4 +22,5 @@ public interface UserService {
     );
     public void updateUser(UUID id, UserRequestDTO dto);
     public void deleteUser(UUID id);
+    public void hardDeletedUser(UUID id);
 }

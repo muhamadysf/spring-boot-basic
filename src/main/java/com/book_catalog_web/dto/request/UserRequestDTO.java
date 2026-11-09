@@ -16,6 +16,8 @@ public record UserRequestDTO(
 
         //@Size(max = 20)
         @NotBlank @Pattern(regexp = "^\\+\\d{1,3}-\\d{10,13}$")
-        String mobileNumber
+        String mobileNumber,
+
+        ProfileRequestDTO profile
 ) {
 }

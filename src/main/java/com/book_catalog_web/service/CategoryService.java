@@ -8,6 +8,7 @@ import com.book_catalog_web.dto.response.CategoryResponseDTO;
 import com.book_catalog_web.dto.response.ResultPageResponseDTO;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface CategoryService {
@@ -23,4 +24,6 @@ public interface CategoryService {
     public void updateCategory(String code, CategoryUpdateRequestDTO dto);
     public void deleteCategory(String code);
     public Set<Category> findAllCategoies(List<String> code);
+
+    public Map<Long, Set<CategoryListResponseDTO>> findCategoryMap(Set<Long> bookIdSet);
 }

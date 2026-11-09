@@ -21,4 +21,6 @@ public interface AppUserRepository extends JpaRepository<AppUser, Long> {
     public Page<AppUser> findAppUsersByNameLikeIgnoreCase(String name, Pageable pageable);
 
     public Optional<AppUser> findAppUserBySecureId(UUID secureId);
+
+    public Optional<AppUser> findByUsername(String username);
 }

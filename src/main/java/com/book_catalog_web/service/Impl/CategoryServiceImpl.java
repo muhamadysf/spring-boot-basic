@@ -1,6 +1,7 @@
 package com.book_catalog_web.service.Impl;
 
 import com.book_catalog_web.domain.Category;
+import com.book_catalog_web.dto.query.CategoryQueryDTO;
 import com.book_catalog_web.dto.request.CategoryRequestDTO;
 import com.book_catalog_web.dto.request.CategoryUpdateRequestDTO;
 import com.book_catalog_web.dto.response.CategoryListResponseDTO;
@@ -18,8 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -87,5 +87,25 @@ public class CategoryServiceImpl implements CategoryService {
             throw new ResourceNotFoundException("Categories not found");
         }
         return categories;
+    }
+
+    @Override
+    public Map<Long, Set<CategoryListResponseDTO>> findCategoryMap(Set<Long> bookIdSet) {
+        Map<Long, Set<CategoryListResponseDTO>> categoriesMap = new HashMap<>();
+        Set<CategoryListResponseDTO> categoriesDTO = null;
+
+        Set<CategoryQueryDTO> categoriesQuery = categoryRepository.findCategoryByBookId(bookIdSet);
+        for(CategoryQueryDTO c : categoriesQuery){
+            if (!categoriesMap.containsKey(c.bookId())) {
+                categoriesDTO = new HashSet<>();
+            } else {
+                categoriesDTO = categoriesMap.get(c.bookId());
+            }
+
+            categoriesDTO.add(new CategoryListResponseDTO(c.categoryCode(), c.categoryName()));
+            categoriesMap.put(c.bookId(), categoriesDTO);
+        }
+
+        return categoriesMap;
     }
 }

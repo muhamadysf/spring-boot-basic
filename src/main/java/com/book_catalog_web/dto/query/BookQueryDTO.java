@@ -1,6 +1,6 @@
 package com.book_catalog_web.dto.query;
 
-public record BookPublisherQueryDTO(
+public record BookQueryDTO(
         Long bookId,
         String bookTitle,
         String bookDescription,

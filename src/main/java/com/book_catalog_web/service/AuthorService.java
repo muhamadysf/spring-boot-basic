@@ -2,10 +2,12 @@ package com.book_catalog_web.service;
 
 import com.book_catalog_web.domain.Author;
 import com.book_catalog_web.dto.request.AuthorRequestDTO;
+import com.book_catalog_web.dto.response.AuthorListResponseDTO;
 import com.book_catalog_web.dto.response.AuthorSearchResponseDTO;
 import com.book_catalog_web.dto.response.AuthorResponseDTO;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface AuthorService {
@@ -21,4 +23,6 @@ public interface AuthorService {
     public void updateAuthor(Long id, AuthorRequestDTO dto);
     public void deleteAuthor(Long id);
     public Set<Author> findAllAuthors(List<Long> authorId);
+
+    public Map<Long, Set<AuthorListResponseDTO>> findAuthorsMap(Set<Long> bookIdSet);
 }

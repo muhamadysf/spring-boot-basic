@@ -4,6 +4,7 @@ import com.book_catalog_web.domain.Author;
 import com.book_catalog_web.domain.Book;
 import com.book_catalog_web.domain.Category;
 import com.book_catalog_web.domain.Publisher;
+import com.book_catalog_web.dto.query.BookQueryDTO;
 import com.book_catalog_web.dto.request.BookRequestDTO;
 import com.book_catalog_web.dto.request.BookUpdateRequestDTO;
 import com.book_catalog_web.dto.response.*;
@@ -15,8 +16,15 @@ import com.book_catalog_web.service.CategoryService;
 import com.book_catalog_web.service.PublisherService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,7 +36,6 @@ public class BookServiceImpl implements BookService {
     private final CategoryService categoryService;
     private final PublisherService publisherService;
     private final BookRepository bookRepository;
-    private final BookService bookService;
 
     @Override
     public IdResponseDTO createBook(BookRequestDTO dto) {
@@ -118,6 +125,33 @@ public class BookServiceImpl implements BookService {
         Book book = bookRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Book not found.!"));
 
         bookRepository.delete(book);
+    }
+
+    @Override
+    public ResultPageResponseDTO<BookListResponseDTO> findBookList(Integer pages, Integer limit, String sortBy, String direction, String bookTitle) {
+
+        Sort sort = Sort.by(new Sort.Order(Sort.Direction.valueOf(direction.toUpperCase()), sortBy));
+        Pageable pageable = PageRequest.of(pages, limit, sort);
+        bookTitle = StringUtils.isBlank(bookTitle) ? "%" : "%" + bookTitle + "%";
+        Page<BookQueryDTO> pageResult = bookRepository.findBookList(bookTitle, pageable);
+
+        //ambil semua/list bookId untuk kebutuhan author dan category
+        Set<Long> bookIdSet = pageResult.stream().map(b -> b.bookId()).collect(Collectors.toSet());
+
+
+        // collect category from bookIdSet
+        Map<Long, Set<CategoryListResponseDTO>> categoriesMap = categoryService.findCategoryMap(bookIdSet);
+
+        // collect authors from bookIdSet
+        Map<Long, Set<AuthorListResponseDTO>> authorsMap = authorService.findAuthorsMap(bookIdSet);
+
+        List<BookListResponseDTO> dtos = pageResult.stream().map( b -> {
+            PublisherListResponseDTO publisherList = new PublisherListResponseDTO(b.publisherId(), b.publisherName());
+
+            return new BookListResponseDTO(b.bookId(), b.bookTitle(), publisherList, authorsMap.get(b.bookId()), categoriesMap.get(b.bookId()));
+        }).toList();
+
+        return new ResultPageResponseDTO<>(dtos, pageResult.getTotalPages(), pageResult.getTotalElements());
     }
 
 }
